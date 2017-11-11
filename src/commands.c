@@ -68,20 +68,17 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
  				"/usr/sbin/",
 				"/sbin/"	
      	 		};
-			
 
-			/////////////////////////////////
-			//////background processing//////
-			/////////////////////////////////
+			//background processing
 			// if there is "&" at the end of argv
-			/*
+			
 			int background = 0;
 			if(strcmp(com->argv[(com->argc)-1], "&") == 0) {
 				background = 1;
 				com->argv[(com->argc)-1] = NULL;
 				(com->argc)--;
 			}
-			*/	
+				
 
 			// process creation
      	 		pid_t pid;
@@ -97,23 +94,28 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
         			//execv(com->argv[0], com->argv);
 				
 				if (execv(com->argv[0], com->argv) == -1) { 
-        			/*
+        			
 					for(int i=0; i<5; i++) {
 						//char temp[64];
-						char* temp = (char*)malloc(strlen(path[i]) + strlen(com->argv[0]));
+						char* temp = (char*)malloc(sizeof(char)*(strlen(path[i]) + strlen(com->argv[0])));
 						strcpy(temp, path[i]);
 						strcat(temp, com->argv[0]);
-						execv()		
+						execv(temp, com->argv);
+						//printf("%d\n", getpid());
+						free(temp);		
 					}
-				*/
+				
 				}
+				// Because if execv succeed child process die, here comes error message
+                                fprintf(stderr, "%s: commands not found\n", com->argv[0]);
+                               	//printf("Child process finished\n");
 				
       			}	
       			else {
         			// parent
-				//if (background == 0){
+				if (background == 0){
         				waitpid(pid, &status, 0);  // waitpid(pid, 0, 0); ??
-     		 		//}
+     		 		}
 			}
     		} 
     		/*
