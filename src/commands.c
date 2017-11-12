@@ -9,6 +9,8 @@
 #include "commands.h"
 #include "built_in.h"
 
+int bgstatus = -1;
+
 static struct built_in_command built_in_commands[] = {
   	{ "cd", do_cd, validate_cd_argv },
   	{ "pwd", do_pwd, validate_pwd_argv },
@@ -92,7 +94,13 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
       			else if(pid == 0) {
         			// child
         			//execv(com->argv[0], com->argv);
-				
+
+				// if child process is  background process, print pid
+				if (background ==1) {
+					printf("%d\n", getpid());					
+					bgstatus = pid;
+				}
+				//sleep(10);
 				if (execv(com->argv[0], com->argv) == -1) { 
         			
 					for(int i=0; i<5; i++) {
@@ -100,23 +108,45 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 						char* temp = (char*)malloc(sizeof(char)*(strlen(path[i]) + strlen(com->argv[0])));
 						strcpy(temp, path[i]);
 						strcat(temp, com->argv[0]);
+						//sleep(10);
 						execv(temp, com->argv);
 						//printf("%d\n", getpid());
 						free(temp);		
 					}
 				
 				}
+				
+				if (background == 1) {
+					bgstatus = pid;
+							
+				}
 				// Because if execv succeed child process die, here comes error message
                                 fprintf(stderr, "%s: commands not found\n", com->argv[0]);
                                	//printf("Child process finished\n");
+				exit(0);
+      			}           
+                        else {
+                                // parent
+				//printf("Parent process start\n");
+                                if (background == 0){
+                                        //printf("wait\n");
+					waitpid(pid, &status, 0);  // waitpid(pid, 0, 0); ??
+                                }
+				//printf("Parent process finished\n");
+			//	exit(0);
+                        }
+                        
+						
+			/*
+			if (background == 1) {
 				
-      			}	
-      			else {
-        			// parent
-				if (background == 0){
-        				waitpid(pid, &status, 0);  // waitpid(pid, 0, 0); ??
-     		 		}
 			}
+			else {
+				if(pid > 0) {
+					watipid(pid, &status, 0); // waitpid(pid, 0 , 0); ??
+				}
+			}
+			*/
     		} 
     		/*
       		else {
