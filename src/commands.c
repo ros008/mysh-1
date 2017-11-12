@@ -98,7 +98,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 				// if child process is  background process, print pid
 				if (background ==1) {
 					printf("%d\n", getpid());					
-					bgstatus = pid;
+					bgstatus = getpid();
 				}
 				//sleep(10);
 				if (execv(com->argv[0], com->argv) == -1) { 
@@ -111,6 +111,8 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 						//sleep(10);
 						execv(temp, com->argv);
 						//printf("%d\n", getpid());
+						//sleep(2);
+						//printf("%d done %s", getpid(), com->argv);
 						free(temp);		
 					}
 				
@@ -123,7 +125,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 				// Because if execv succeed child process die, here comes error message
                                 fprintf(stderr, "%s: commands not found\n", com->argv[0]);
                                	//printf("Child process finished\n");
-				exit(0);
+				return 0;
       			}           
                         else {
                                 // parent
@@ -133,7 +135,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
 					waitpid(pid, &status, 0);  // waitpid(pid, 0, 0); ??
                                 }
 				//printf("Parent process finished\n");
-			//	exit(0);
+				return 0;
                         }
                         
 						
@@ -156,7 +158,7 @@ int evaluate_command(int n_commands, struct single_command (*commands)[512])
     		*/
   	}
 
-  return 0;
+  	return 0;
 }
 
 void free_commands(int n_commands, struct single_command (*commands)[512])
